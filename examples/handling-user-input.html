@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<title>Abro drag and drop example</title>
+<style>
+  .absolute {
+    position: absolute;
+  }
+  .relative {
+    position: relative;
+  }
+  .inline-block {
+    display: inline-block;
+  }
+  .w-24 {
+    width: 6rem;
+  }
+  .h-24 {
+    height: 6rem;
+  }
+  .bg-indigo-500 {
+    background-color: rgb(99 102 241);
+  }
+  #myObject {
+    left: 5px;
+    top: 35px;
+  }
+</style>
+<code id="status">Ready</code>
+<div id="myObject" class="absolute inline-block w-24 h-24 bg-indigo-500"></div>
+<script src="../dist/browser/browser.js"></script>
+<script>
+  const draggable = document.getElementById("myObject");
+  const setStatus = (str) =>
+    (document.getElementById("status").textContent = str);
+
+  const events = new abro.EventSource(draggable);
+  const windowEvents = new abro.EventSource(window);
+
+  abro.loop(async () => {
+    const downEvent = await events.pointerdown;
+    downEvent.target.setPointerCapture(downEvent.pointerId);
+
+    const { left, top } = draggable.getBoundingClientRect();
+    const origPos = { left, top };
+
+    let didDrag = false;
+
+    // `or` starts multiple processes, waiting for the first one to complete,
+    // at which point the others are terminated. This is inspired by `par/or`
+    // in Céu (ceu-lang.org), another language influenced by Esterel.
+    await abro.or(
+      async function handleDrag() {
+        while (true) {
+          const { clientX, clientY } = await events.pointermove;
+          didDrag = true;
+          const deltaX = clientX - downEvent.x;
+          const deltaY = clientY - downEvent.y;
+          draggable.style.left = `${origPos.left + deltaX}px`;
+          draggable.style.top = `${origPos.top + deltaY}px`;
+          setStatus("dragging...");
+        }
+      },
+      async function handlePointerUp() {
+        await events.pointerup;
+        if (didDrag) {
+          setStatus("Dropped!");
+        } else {
+          setStatus("Clicked!");
+        }
+      },
+      async function handleEscape() {
+        let key;
+        while (key !== "Escape") {
+          ({ key } = await windowEvents.keydown);
+        }
+        draggable.style.left = `${origPos.left}px`;
+        draggable.style.top = `${origPos.top}px`;
+        setStatus("Cancelled!");
+      }
+    );
+  });
+</script>

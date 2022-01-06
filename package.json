@@ -1,0 +1,43 @@
+{
+  "name": "abro",
+  "version": "0.1.0",
+  "description": "An experiment in structured reactive programming for JavaScript",
+  "main": "dist/abro.cjs.js",
+  "module": "dist/abro.esm.js",
+  "targets": {
+    "module": {
+      "source": "src/index.mjs"
+    },
+    "main": {
+      "source": "src/index.mjs"
+    },
+    "web": {
+      "source": "browser.js",
+      "outputFormat": "global",
+      "context": "browser",
+      "isLibrary": false
+    }
+  },
+  "scripts": {
+    "build": "parcel build",
+    "format": "prettier . --write",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "parcel watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pdubroy/abro.git"
+  },
+  "author": "Patrick Dubroy <pdubroy@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pdubroy/abro/issues"
+  },
+  "homepage": "https://github.com/pdubroy/abro#readme",
+  "devDependencies": {
+    "ava": "^4.0.0",
+    "eslint": "^8.6.0",
+    "parcel": "^2.1.0",
+    "prettier": "^2.5.1"
+  }
+}
